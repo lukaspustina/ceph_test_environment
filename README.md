@@ -24,7 +24,7 @@ All commands are executed as `root` on `alpha`, i.e. `vagrant ssh alpha`
 1. `ceph -c ceph.conf -s`
 1. `ceph-deploy gatherkeys alpha beta gamma`
 1. `ceph-deploy disk list <host>` with `host` in [`alpha`, `beta`, `gamma`]
-1. For the disk you want to add: `ceph-deploy osd create <host>:<disk>` with `disk` from the the privious step
+1. For the disk you want to add: `ceph-deploy osd create <host>:<disk>` with `disk` from the the previous step
 1. `ceph -s`
 1. `ceph osd tree`
 
