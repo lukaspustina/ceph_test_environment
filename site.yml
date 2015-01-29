@@ -1,0 +1,41 @@
+---
+
+- hosts: all
+  vars:
+    - ubuntu_version: trusty
+    - ceph_release: firefly
+    - my_hosts:
+        - { name: alpha, ip: 192.168.111.11 }
+        - { name: beta,  ip: 192.168.111.12 }
+        - { name: gamma, ip: 192.168.111.13 }
+
+  tasks:
+    - name: Create /etc/hosts file
+      sudo: True
+      lineinfile: dest=/etc/hosts regexp='.*{{ item.name }}$' line="{{ item.ip }} {{ item.name }}" state=present
+      with_items: my_hosts
+
+    - name: Add Ceph repository key
+      sudo: True
+      apt_key: url=https://ceph.com/git/?p=ceph.git;a=blob_plain;f=keys/release.asc state=present
+
+    - name: Add Ceph repository
+      sudo: True
+      apt_repository: repo='deb http://ceph.com/debian-{{ ceph_release }}/ {{ ubuntu_version }} main' state=present
+
+    - name: Create authorized_key for root
+      sudo: True
+      authorized_key: user=root key="{{ item }}"
+      with_file:
+        - id_rsa.pub
+
+- hosts: alpha
+  tasks:
+    - name: Copy SSH private key
+      sudo: True
+      copy: src=id_rsa dest=/root/.ssh/id_rsa owner=root group=root mode=0600
+
+    - name: Install Ceph Deploy
+      sudo: True
+      apt: name=ceph-deploy state=present update_cache=yes cache_valid_time=3600
+
